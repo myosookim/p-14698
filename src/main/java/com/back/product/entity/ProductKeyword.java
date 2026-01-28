@@ -12,12 +12,12 @@ public class ProductKeyword {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
-    @JsonIgnore
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Setter
     @Getter
+    @JsonIgnore
     private Product product;
 
     @Column
