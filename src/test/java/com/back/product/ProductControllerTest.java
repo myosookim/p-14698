@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.ai.embedding.EmbeddingModel;
 import com.back.product.service.ProductChatService;
+import reactor.core.publisher.Flux;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
@@ -64,6 +65,8 @@ class ProductControllerTest {
                 when(embeddingModel.embed(anyList())).thenReturn(List.of(vector));
                 when(productChatService.chat(anyString()))
                                 .thenReturn(new ProductChatService.ChatResponse("Mock response"));
+                when(productChatService.chatStream(anyString()))
+                                .thenReturn(Flux.just("Mock ", "stream ", "response"));
                 productDocumentRepository.deleteAll();
                 productRepository.deleteAll();
         }
@@ -314,6 +317,7 @@ class ProductControllerTest {
                                 .andExpect(jsonPath("$.message").exists());
 
         }
+
         @Test
         @DisplayName("GET /api/v1/products/chat/stream - 스트리밍 채팅 요청")
         void t17() throws Exception {
@@ -321,24 +325,24 @@ class ProductControllerTest {
                 productService.create("Business Laptop", List.of("business", "laptop", "office"));
 
                 ResultActions result = mockMvc.perform(get("/api/v1/products/chat/stream")
-                        .param("message", "I need a laptop for gaming")
-                        .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
+                                .param("message", "I need a laptop for gaming")
+                                .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
 
                 result.andDo(print())
-                        .andExpect(status().isOk())
-                        .andExpect(request().asyncStarted());
+                                .andExpect(status().isOk())
+                                .andExpect(request().asyncStarted());
         }
 
         @Test
         @DisplayName("GET /api/v1/products/chat/stream - 상품 없이 스트리밍 채팅 요청")
         void t18() throws Exception {
                 ResultActions result = mockMvc.perform(get("/api/v1/products/chat/stream")
-                        .param("message", "Show me all products")
-                        .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
+                                .param("message", "Show me all products")
+                                .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
 
                 result.andDo(print())
-                        .andExpect(status().isOk())
-                        .andExpect(request().asyncStarted());
+                                .andExpect(status().isOk())
+                                .andExpect(request().asyncStarted());
         }
 
         @Test
@@ -349,11 +353,11 @@ class ProductControllerTest {
                 productService.create("iPad Pro", List.of("tablet", "apple", "drawing"));
 
                 ResultActions result = mockMvc.perform(get("/api/v1/products/chat/stream")
-                        .param("message", "Find products similar to product ID " + laptop.getId())
-                        .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
+                                .param("message", "Find products similar to product ID " + laptop.getId())
+                                .accept(MediaType.TEXT_EVENT_STREAM_VALUE));
 
                 result.andDo(print())
-                        .andExpect(status().isOk())
-                        .andExpect(request().asyncStarted());
+                                .andExpect(status().isOk())
+                                .andExpect(request().asyncStarted());
         }
 }
