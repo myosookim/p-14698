@@ -25,6 +25,12 @@ import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.ai.embedding.EmbeddingModel;
+import com.back.product.service.ProductChatService;
 
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
@@ -45,8 +51,19 @@ class ProductControllerTest {
         @Autowired
         private ProductDocumentRepository productDocumentRepository;
 
+        @MockitoBean
+        private EmbeddingModel embeddingModel;
+
+        @MockitoBean
+        private ProductChatService productChatService;
+
         @BeforeEach
         void setUp() {
+                float[] vector = new float[384];
+                vector[0] = 1.0f; // Ensure non-zero magnitude
+                when(embeddingModel.embed(anyList())).thenReturn(List.of(vector));
+                when(productChatService.chat(anyString()))
+                                .thenReturn(new ProductChatService.ChatResponse("Mock response"));
                 productDocumentRepository.deleteAll();
                 productRepository.deleteAll();
         }
