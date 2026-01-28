@@ -12,14 +12,14 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:sk-dummy}
+      api-key: ${OPENAI_API_KEY}
       embedding:
         options:
           model: text-embedding-3-small #?? ?? ??

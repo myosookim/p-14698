@@ -1,6 +1,7 @@
 package com.back.product.controller;
 
 import com.back.product.entity.Product;
+import com.back.product.service.ProductChatService;
 import com.back.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductChatService productChatService;
 
     // ==================== CREATE ====================
     @PostMapping
@@ -55,7 +57,8 @@ public class ProductController {
 
     // ==================== KNN SEARCH ====================
     @PostMapping("/search")
-    public ResponseEntity<List<Product>> knnSearch(@RequestBody SearchRequest request) {
+    public ResponseEntity<List<Product>> knnSearch(
+            @RequestBody SearchRequest request) {
         List<Product> results = productService.knnSearch(request.keywords(), request.k());
         return ResponseEntity.ok(results);
     }
@@ -72,6 +75,13 @@ public class ProductController {
         }
     }
 
+    // ==================== CHAT ====================
+    @PostMapping("/chat")
+    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
+        var response = productChatService.chat(request.message());
+        return ResponseEntity.ok(new ChatResponse(response.message()));
+    }
+
     // ==================== Request DTOs ====================
     public record CreateRequest(String name, List<String> keywords) {}
     public record UpdateRequest(String name, List<String> keywords) {}
@@ -80,4 +90,6 @@ public class ProductController {
             if (k <= 0) k = 10;
         }
     }
+    public record ChatRequest(String message) {}
+    public record ChatResponse(String message) {}
 }
